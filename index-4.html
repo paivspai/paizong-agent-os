@@ -6,13 +6,14 @@
 [hidden]{display:none!important}.cloudbar{margin:19px 0 0;padding:16px;background:linear-gradient(120deg,#102a35,#0d212d);border:1px solid #315d65;border-radius:14px}.cloudhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.cloudhead b{font-size:14px}.cloudhint{font-size:12px;color:var(--sub);margin:8px 0}.cloudbtns{display:flex;gap:8px;flex-wrap:wrap}.cloudbtns .btn{font-size:12px}.cloudform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}.cloudform label{display:flex;flex-direction:column;font-size:12px;color:var(--sub);gap:5px}.cloudform input{width:100%}.clouderr{color:#ffc1b8;font-size:12px}.cloudsuccess{color:var(--green);font-size:12px}.cloudtag{padding:4px 9px;border-radius:7px;border:1px solid #466174;color:#c1e4ed;font-size:11px;white-space:normal}.cloudactions{display:none;gap:8px;flex-wrap:wrap;margin-top:10px}.cloudactions.show{display:flex}.cloudsmall{font-size:11px;color:#a6becb}.cloudbar button:disabled{opacity:.48;cursor:not-allowed}@media(max-width:650px){.cloudform{grid-template-columns:1fr}.cloudhead{align-items:flex-start}.cloudbtns{width:100%}.cloudbtns button{flex:1}}
 
 .real-run{margin:12px 0}.real-run h4{margin-top:12px}.real-run details{margin:10px 0;padding:10px;background:#0b1a24;border-radius:8px}.real-run summary{cursor:pointer;color:var(--green);overflow-wrap:anywhere}.run-text{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,monospace;color:#bdd3dc;max-height:480px;overflow:auto}.run-review textarea{display:block;width:100%;margin:6px 0 10px}.real-run p{overflow-wrap:anywhere}#runHint{margin:10px 0}
+.boss-conclusion{background:#123b33;border:1px solid #6be0b0;border-radius:12px;padding:18px;margin:12px 0}.boss-conclusion h4{color:#6be0b0;font-size:19px;margin:0 0 10px}.boss-conclusion p{white-space:pre-line;color:#eaf3f6;font-size:15px;line-height:1.85;margin:0}.boss-title{font-size:20px}.login-conclusion{margin:10px 0}.real-run>.task-top b{font-size:16px}
 </style></head><body>
 <div class="wrap">
 <header class="top"><div class="logo"><div class="mark">派</div><div><div class="eyebrow">PAIZONG / COMPANY OS</div><h1>TikTok AI 一人公司</h1></div></div><span class="tag">总指挥官工作台 · V2.0 · 云端可选</span></header>
 <section class="hero"><div><small>经营总纲 / THE MISSION</small><h2>老板负责验收。<br>指挥官负责把正确的事做成。</h2><p>主攻东南亚＋美国，未来拓展英国与墨西哥。四条业务线：跨境门槛 → 单品盈利 → 培训生态 → 供应链与渠道。真实成果、实际利润和可重复执行的规则，优先于Agent数量。</p></div><div class="hero-side"><span>当前阶段优先级</span><strong>02 / 利润引擎</strong><span>第一阶段规则建设同步推进</span></div></section>
 
 <section class="cloudbar" id="cloudPanel" aria-label="云端同步设置">
-  <div class="cloudhead"><div><b>☁ 任务云端同步 · V2</b> <span id="cloudBadge" class="cloudtag">本机离线模式</span></div><div class="cloudbtns"><button class="btn" id="cloudToggle">设置云端同步</button><button class="btn" id="cloudRefresh" style="display:none">读取云端</button></div></div>
+  <div class="cloudhead"><div><b>☁ 任务云端同步 · V2</b> <span id="cloudBadge" class="cloudtag">本机离线模式</span></div><div class="cloudbtns"><button class="btn" id="cloudToggle">登录 / 账号设置</button><button class="btn" id="cloudRefresh" style="display:none">读取云端</button></div></div>
   <div class="cloudhint" id="cloudHint">你刚才修改的任务仍然保存在本机；首次同步前不会覆盖它们。</div>
   <div id="cloudControls" hidden>
     <div class="cloudform" id="cloudAuthForm">
@@ -26,7 +27,7 @@
     <div id="cloudError" class="clouderr" role="alert" style="margin-top:9px"></div>
   </div>
 </section>
-<section class="panel" id="realRunsPanel" aria-label="真实任务运行与验收" style="margin-top:18px"><div class="cloudhead"><b>真实任务运行与验收</b><button class="btn" id="runRefresh" disabled>刷新真实运行</button></div><p id="runHint" class="muted" role="status">登录后查看本人真实运行、产物和验收记录。</p><p class="small muted">此区域读取云端执行证据；本机任务卡的人工状态不代表运行。Muse与Instabox尚未接通。验收成果不会触发采购、投放或发布。</p><div id="runList"></div></section>
+<section class="panel" id="realRunsPanel" aria-label="老板结论与验收" style="margin-top:18px"><div class="cloudhead"><b class="boss-title">老板结论与验收</b><button class="btn" id="runRefresh" disabled>刷新结论</button></div><button class="btn primary login-conclusion" id="conclusionLogin" type="button">登录查看结论</button><p id="runHint" class="muted" role="status">尚未登录，暂不显示你的结论。点击“登录查看结论”，登录后这里直接显示建议、理由和下一步。</p><p class="small muted">此区域读取云端执行证据；本机任务卡的人工状态不代表运行。Muse与Instabox尚未接通。验收成果不会触发采购、投放或发布。</p><div id="runList"></div></section>
 <section class="stats" id="stats"></section>
 <div class="sectionhead"><h3>业务阶段</h3><span class="muted small">点击筛选该阶段任务</span></div>
 <div class="stages" id="stages"></div>
@@ -131,8 +132,8 @@ let realRuns=[],realArtifacts=[],realQa=[],runLoadVersion=0,runBusy=false;
 const runStateLabel={ready:'等待执行',working:'真实执行中',review:'待创始人验收',approved:'创始人已通过',rejected:'创始人已打回',blocked:'阻塞',failed:'执行失败'};
 function resetRunPanel(){
  runLoadVersion++;realRuns=[];realArtifacts=[];realQa=[];runBusy=false;
- $('#runList').replaceChildren();$('#runRefresh').disabled=!cloudUser;
- $('#runHint').textContent=cloudUser?'尚未读取云端执行记录。':'登录后查看本人真实运行、产物和验收记录。';
+ $('#runList').replaceChildren();$('#runRefresh').disabled=!cloudUser;$('#conclusionLogin').hidden=!!cloudUser;
+ $('#runHint').textContent=cloudUser?'点击“刷新结论”查看已经回传的成果。':'尚未登录，暂不显示你的结论。点击“登录查看结论”，登录后这里直接显示建议、理由和下一步。';
 }
 function runDate(value){return value?new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'未记录'}
 function renderRealRuns(){
@@ -140,12 +141,12 @@ function renderRealRuns(){
   const artifacts=realArtifacts.filter(a=>a.run_id===r.id),qas=realQa.filter(q=>q.run_id===r.id);
   const canReview=r.status==='review';
   const canApprove=canReview&&!!r.started_at&&!!r.log_text&&!!r.completed_at&&artifacts.length>0&&qas.some(q=>q.independent&&['PASS','CONDITIONAL'].includes(q.result))&&!qas.some(q=>q.result==='FAIL');
-  return `<article class="panel real-run"><div class="task-top"><b>${esc(r.task_id||'未关联任务')}</b><span class="pill">${esc(runStateLabel[r.status]||r.status)}</span></div><h4>${esc(r.result_summary||'暂无结果摘要')}</h4><p>运行ID：${esc(r.id)}<br>实际执行器：${esc(r.actual_runner)}<br>实例：${esc(r.runner_instance_id)}<br>开始：${esc(runDate(r.started_at))} · 结束：${esc(runDate(r.completed_at))}<br>心跳：${esc(runDate(r.heartbeat_at))}</p><p class="small">输入SHA256：${esc(r.input_sha256||'未记录')}${r.error_code?'<br>错误码：'+esc(r.error_code):''}</p><details><summary>查看原始执行日志</summary><pre class="run-text">${esc(r.log_text||'未回传日志，不能认定执行完成。')}</pre></details><div class="run-artifacts">${artifacts.map(a=>`<details><summary>产物：${esc(a.title)}</summary><p class="small">${esc(a.mime_type)} · SHA256 ${esc(a.sha256)}</p><pre class="run-text">${esc(a.content_text)}</pre><button class="btn" type="button" data-run-artifact="${esc(a.id)}">下载该产物</button></details>`).join('')||'<p>没有产物记录。</p>'}</div><div>${qas.map(q=>`<details><summary>QA：${esc(q.result)} · ${esc(q.reviewer)} · ${q.independent?'独立执行实例复核':'内部复核'}</summary><p class="small">复核执行器：${esc(q.actual_runner)}</p><pre class="run-text">${esc(q.report_text)}</pre></details>`).join('')||'<p>尚无QA记录。</p>'}</div>${r.owner_decision?`<p>创始人决定：${esc(r.owner_decision)} · ${esc(runDate(r.reviewed_at))}<br>${esc(r.owner_note||'')}</p>`:''}${canReview?`<div class="run-review"><label class="small">验收意见<textarea data-run-note="${esc(r.id)}" placeholder="通过范围或打回原因；不代表批准采购、投放或发布"></textarea></label><div class="toolbar">${canApprove?`<button class="btn primary" type="button" data-review-run="${esc(r.id)}" data-decision="approved">通过本次成果</button>`:'<span class="small muted">独立QA、完整产物或完成时间未满足通过条件</span>'}<button class="btn" type="button" data-review-run="${esc(r.id)}" data-decision="rejected">打回修改</button></div></div>`:r.status==='review'?'<p>产物或QA未齐全，暂不开放验收。</p>':''}</article>`;
+  return `<article class="panel real-run"><div class="task-top"><b>本次经营判断</b><span class="pill">${esc(runStateLabel[r.status]||r.status)}</span></div><section class="boss-conclusion"><h4>老板结论</h4><p>${esc(r.result_summary||'结论尚未回传，请稍后刷新。')}</p></section><details><summary>查看执行记录与技术凭证</summary><p>任务ID：${esc(r.task_id)}<br>运行ID：${esc(r.id)}<br>实际执行器：${esc(r.actual_runner)}<br>实例：${esc(r.runner_instance_id)}<br>开始：${esc(runDate(r.started_at))} · 结束：${esc(runDate(r.completed_at))}<br>心跳：${esc(runDate(r.heartbeat_at))}</p><p class="small">输入SHA256：${esc(r.input_sha256||'未记录')}${r.error_code?'<br>错误码：'+esc(r.error_code):''}</p><details><summary>查看原始执行日志</summary><pre class="run-text">${esc(r.log_text||'未回传日志，不能认定执行完成。')}</pre></details></details><details><summary>展开完整报告与原始证据</summary><div class="run-artifacts">${artifacts.map(a=>`<details><summary>${esc(({"market_decision.md":"选品理由与订单来源","finance_decision.md":"利润、获客与现金流完整分析","PRODUCT001_independent_qa.md":"独立复核与未解决问题"})[a.title]||a.title)}</summary><p class="small">${esc(a.mime_type)} · SHA256 ${esc(a.sha256)}</p><pre class="run-text">${esc(a.content_text)}</pre><button class="btn" type="button" data-run-artifact="${esc(a.id)}">下载该产物</button></details>`).join('')||'<p>没有产物记录。</p>'}</div><div>${qas.map(q=>`<details><summary>QA：${esc(q.result)} · ${esc(q.reviewer)} · ${q.independent?'独立执行实例复核':'内部复核'}</summary><p class="small">复核执行器：${esc(q.actual_runner)}</p><pre class="run-text">${esc(q.report_text)}</pre></details>`).join('')||'<p>尚无QA记录。</p>'}</div></details>${r.owner_decision?`<p>创始人决定：${esc(r.owner_decision)} · ${esc(runDate(r.reviewed_at))}<br>${esc(r.owner_note||'')}</p>`:''}${canReview?`<div class="run-review"><label class="small">验收意见<textarea data-run-note="${esc(r.id)}" placeholder="通过范围或打回原因；不代表批准采购、投放或发布"></textarea></label><div class="toolbar">${canApprove?`<button class="btn primary" type="button" data-review-run="${esc(r.id)}" data-decision="approved">通过本次成果</button>`:'<span class="small muted">独立QA、完整产物或完成时间未满足通过条件</span>'}<button class="btn" type="button" data-review-run="${esc(r.id)}" data-decision="rejected">打回修改</button></div></div>`:r.status==='review'?'<p>产物或QA未齐全，暂不开放验收。</p>':''}</article>`;
  }).join('');
 }
 async function loadRealRuns(){
  if(!cloudUser||!cloudToken){resetRunPanel();return}
- const version=++runLoadVersion,owner=cloudUser.id;runBusy=true;$('#runRefresh').disabled=true;
+ $('#conclusionLogin').hidden=true;const version=++runLoadVersion,owner=cloudUser.id;runBusy=true;$('#runRefresh').disabled=true;
  $('#runHint').textContent='正在读取云端真实运行记录…';
  try{
   const ownerFilter='&owner_id=eq.'+encodeURIComponent(owner);
@@ -164,7 +165,7 @@ async function loadRealRuns(){
   if(version!==runLoadVersion||cloudUser?.id!==owner)return;
   if(!Array.isArray(artifacts)||!Array.isArray(qa))throw Error('产物或QA记录格式错误');
   realRuns=runs;realArtifacts=artifacts;realQa=qa;renderRealRuns();
-  $('#runHint').textContent=runs.length?'已读取 '+runs.length+' 条云端运行。只有以下记录代表真实执行；成果通过不等于采购、投放或发布授权。':'云端暂无真实运行记录。上方本机任务卡不能证明Agent已执行。';
+  $('#runHint').textContent=runs.length?'已显示 '+runs.length+' 份结论。先看下方绿色“老板结论”；完整报告和执行记录可按需展开。':'云端暂无真实运行记录。上方本机任务卡不能证明Agent已执行。';
  }catch(e){
   if(version!==runLoadVersion||cloudUser?.id!==owner)return;
   realRuns=[];realArtifacts=[];realQa=[];$('#runList').replaceChildren();
@@ -186,6 +187,7 @@ async function submitRunReview(runId,decision){
  }finally{buttons.forEach(b=>b.disabled=false)}
 }
 $('#runRefresh').onclick=()=>loadRealRuns();
+$('#conclusionLogin').onclick=()=>{cloudEls.panel.hidden=false;$('#cloudPanel').scrollIntoView({behavior:'smooth',block:'start'});$('#cloudEmail').focus()};
 $('#runList').addEventListener('click',async e=>{
  const review=e.target.closest('button[data-review-run]');
  if(review){try{await submitRunReview(review.dataset.reviewRun,review.dataset.decision)}catch(err){show(err.message)}return}
