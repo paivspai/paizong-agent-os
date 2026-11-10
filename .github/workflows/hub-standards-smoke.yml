@@ -4,6 +4,7 @@ on:
     paths:
       - 'hub/**'
       - 'portal/index.html'
+      - 'tests/hub-ui-smoke.mjs'
       - '.github/workflows/hub-standards-smoke.yml'
   workflow_dispatch:
 permissions:
@@ -26,6 +27,8 @@ jobs:
           grep -q 'data-go="sops"' hub/app.js
           grep -q 'href="../hub/"' portal/index.html
           grep -q 'href="../portal/"' hub/index.html
+      - name: Real browser render and progress interaction
+        run: node tests/hub-ui-smoke.mjs
       - name: Live private API authentication boundary
         run: |
           node --input-type=module <<'NODE'
