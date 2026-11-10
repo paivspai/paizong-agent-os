@@ -1,0 +1,46 @@
+name: Hub Standards and Auth Smoke
+on:
+  push:
+    paths:
+      - 'hub/**'
+      - 'portal/index.html'
+      - '.github/workflows/hub-standards-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static integration checks
+        run: |
+          node --check hub/app.js
+          grep -q 'function standardSops' hub/app.js
+          grep -q 'function standardsDocs' hub/app.js
+          grep -q 'function bindSopControls' hub/app.js
+          grep -q 'data-go="sops"' hub/app.js
+          grep -q 'href="../hub/"' portal/index.html
+          grep -q 'href="../portal/"' hub/index.html
+      - name: Live private API authentication boundary
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const url='https://rsiqtfaudqfdhckjovse.supabase.co/functions/v1/paizong-hub-private';
+          const tests=[
+            ['anonymous load', {method:'POST',headers:{'Content-Type':'application/json','Origin':'https://paivspai.github.io'},body:JSON.stringify({action:'load'})},401],
+            ['untrusted origin', {method:'POST',headers:{'Content-Type':'application/json','Origin':'https://unknown.invalid'},body:JSON.stringify({action:'load'})},403],
+            ['wrong method', {method:'GET',headers:{'Origin':'https://paivspai.github.io'}},405]
+          ];
+          for(const [name,opts,expected] of tests){
+            const res=await fetch(url,{...opts,signal:AbortSignal.timeout(20000)});
+            const body=await res.text();
+            assert.equal(res.status,expected,name+' expected '+expected+' but got '+res.status+' body='+body.slice(0,100));
+            assert.ok(!body.includes('commandCards')&&!body.includes('OPERATING_SYSTEM'),name+' leaked private catalog');
+            console.log(name,'PASS',res.status);
+          }
+          NODE
