@@ -1,0 +1,77 @@
+name: Verify article2media pinned Skill
+on:
+  push:
+    paths: ['.github/workflows/skill-lab-article2media.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chinese font
+        run: sudo apt-get update -qq && sudo apt-get install -qq -y fonts-noto-cjk
+      - name: Checkout pinned upstream
+        run: |
+          git clone -q https://github.com/threerocks/article2media.git upstream
+          git -C upstream checkout -q --detach 5e752beaa7cd396804b732032ada482da6851e43
+          test "$(git -C upstream rev-parse HEAD)" = '5e752beaa7cd396804b732032ada482da6851e43'
+      - name: Actual rendering smoke tests
+        shell: bash
+        run: |
+          set +e
+          mkdir -p validation-artifacts
+          cat > validation-artifacts/input.md <<'MD'
+          ---
+          title: 内容工厂标准验收
+          author: 测试样本
+          platform: local
+          date: 2026-11-10
+          ---
+          # 内容工厂标准验收
+          
+          第一段：同一份内容分别生成公众号版式和小红书卡片。
+          
+          ## 标准流程
+          
+          第二段：先检查原文，再核实数字，最后审查输出。
+          
+          ### 1. 标题序号测试
+          
+          第三段：本样本有 3 段正文，这里用 1. 开头测试原文账本。
+          MD
+          run() {
+            tag="$1"; shift
+            timeout 180s "$@" > "validation-artifacts/$tag.log" 2>&1
+            ec=$?
+            echo "$ec" > "validation-artifacts/$tag.exitcode"
+            tail -n 12 "validation-artifacts/$tag.log" || true
+          }
+          run doctor node upstream/skills/article2media/engine/scripts/doctor.mjs
+          run wechat node upstream/skills/wechat-layout/scripts/wechat.mjs validation-artifacts/input.md --theme quiet --out validation-artifacts/wechat
+          run cards node upstream/skills/image-cards/scripts/cards.mjs validation-artifacts/input.md --ratio 3:4 --theme quiet --out validation-artifacts/cards
+          echo '## article2media 2.0.1 | pinned 5e752bea' >> "$GITHUB_STEP_SUMMARY"
+          echo '| Stage | Exit | Generated files |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---:|---:|' >> "$GITHUB_STEP_SUMMARY"
+          for tag in doctor wechat cards; do
+            n=$(find "validation-artifacts/$tag" -type f 2>/dev/null | wc -l)
+            echo "| $tag | $(cat validation-artifacts/$tag.exitcode) | $n |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          find validation-artifacts -type f | sort > validation-artifacts/manifest.txt
+          sha256sum validation-artifacts/input.md > validation-artifacts/input.sha256
+          echo 'Limit: checks only layout CLI, not video quality, Mac VoxCPM2, copyright, or publishing.' >> "$GITHUB_STEP_SUMMARY"
+          [[ $(cat validation-artifacts/wechat.exitcode) == 0 && $(cat validation-artifacts/cards.exitcode) == 0 ]]
+      - name: Upload evidence even if render fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: article2media-smoke
+          path: validation-artifacts/
+          retention-days: 30
