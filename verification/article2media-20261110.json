@@ -1,0 +1,73 @@
+{
+  "schema": "paizong-skill-evaluation-v1",
+  "id": "article2media-2026-11-10",
+  "name": "article2media",
+  "kind": "skill_bundle",
+  "source_url": "https://github.com/threerocks/article2media",
+  "version": "2.0.1",
+  "baseline_sha": "5e752beaa7cd396804b732032ada482da6851e43",
+  "patched_sha": "03ee9bff32f9be5ad98ac1b4db4e4cfecc73b29a",
+  "license": "MIT",
+  "evaluation_status": "testing",
+  "decision": "assist_pending_integration",
+  "baselines": [
+    "HyperFrames",
+    "VoxCPM2",
+    "Canvas/GSAP",
+    "Chrome",
+    "FFmpeg"
+  ],
+  "scenarios": [
+    {
+      "id": "wechat-plain",
+      "input": "normal Markdown",
+      "baseline_pass": true,
+      "fix_not_tested": true,
+      "evidence": "https://github.com/paivspai/paizong-agent-os/actions/runs/42726272107"
+    },
+    {
+      "id": "cards-plain",
+      "input": "normal Markdown",
+      "baseline_pass": true,
+      "fix_not_tested": true,
+      "evidence": "https://github.com/paivspai/paizong-agent-os/actions/runs/42726272107"
+    },
+    {
+      "id": "wechat-numbered-heading",
+      "input": "### 1. numbered heading",
+      "baseline_pass": false,
+      "fix_pass": true,
+      "evidence": "https://github.com/paivspai/paizong-agent-os/actions/runs/42726272107"
+    },
+    {
+      "id": "cards-numbered-heading",
+      "input": "### 1. numbered heading",
+      "baseline_pass": false,
+      "fix_pass": true,
+      "evidence": "https://github.com/paivspai/paizong-agent-os/actions/runs/42726272107"
+    }
+  ],
+  "tested_environment": "GitHub Actions ubuntu-latest Node.js 22, browser headless, fonts-noto-cjk",
+  "not_tested": [
+    "macOS Apple Silicon VoxCPM2",
+    "Whisper and video input",
+    "actual MP4",
+    "publication to social networks",
+    "production backend integration",
+    "commercial rights"
+  ],
+  "gates": {
+    "material_outputs": true,
+    "reproducible_logs": true,
+    "plain_text_pass": true,
+    "regression_discovered": true,
+    "patch_regression_pass": true,
+    "integrated": false,
+    "video_quality_pass": false
+  },
+  "evidence": [
+    "https://github.com/paivspai/paizong-agent-os/actions/runs/42725932632",
+    "https://github.com/paivspai/paizong-agent-os/actions/runs/42726272107"
+  ],
+  "next_decision": "Use patched image-cards and wechat-layout only after integration test. Keep existing video pipeline until equal-input A/B."
+}
