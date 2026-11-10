@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Node 22
         uses: actions/setup-node@v4
         with:
@@ -23,6 +25,8 @@ jobs:
           git clone -q https://github.com/threerocks/article2media.git upstream
           git -C upstream checkout -q --detach 5e752beaa7cd396804b732032ada482da6851e43
           test "$(git -C upstream rev-parse HEAD)" = '5e752beaa7cd396804b732032ada482da6851e43'
+          git -C upstream fetch -q origin pull/2/head
+          git -C upstream cat-file -t 03ee9bff32f9be5ad98ac1b4db4e4cfecc73b29a
       - name: Actual rendering smoke tests
         shell: bash
         run: |
@@ -47,6 +51,7 @@ jobs:
           
           第三段：本样本有 3 段正文，这里用 1. 开头测试原文账本。
           MD
+          sed 's/### 1\. 标题序号测试/### 标题序号测试/' validation-artifacts/input.md > validation-artifacts/control.md
           run() {
             tag="$1"; shift
             timeout 180s "$@" > "validation-artifacts/$tag.log" 2>&1
@@ -55,23 +60,28 @@ jobs:
             tail -n 12 "validation-artifacts/$tag.log" || true
           }
           run doctor node upstream/skills/article2media/engine/scripts/doctor.mjs
-          run wechat node upstream/skills/wechat-layout/scripts/wechat.mjs validation-artifacts/input.md --theme quiet --out validation-artifacts/wechat
-          run cards node upstream/skills/image-cards/scripts/cards.mjs validation-artifacts/input.md --ratio 3:4 --theme quiet --out validation-artifacts/cards
+          run main-control-wechat node upstream/skills/wechat-layout/scripts/wechat.mjs validation-artifacts/control.md --theme quiet --out validation-artifacts/main-control-wechat
+          run main-control-cards node upstream/skills/image-cards/scripts/cards.mjs validation-artifacts/control.md --ratio 3:4 --theme quiet --out validation-artifacts/main-control-cards
+          run main-edge-wechat node upstream/skills/wechat-layout/scripts/wechat.mjs validation-artifacts/input.md --theme quiet --out validation-artifacts/main-edge-wechat
+          run main-edge-cards node upstream/skills/image-cards/scripts/cards.mjs validation-artifacts/input.md --ratio 3:4 --theme quiet --out validation-artifacts/main-edge-cards
+          git -C upstream checkout -q --detach 03ee9bff32f9be5ad98ac1b4db4e4cfecc73b29a
+          run pr2-edge-wechat node upstream/skills/wechat-layout/scripts/wechat.mjs validation-artifacts/input.md --theme quiet --out validation-artifacts/pr2-edge-wechat
+          run pr2-edge-cards node upstream/skills/image-cards/scripts/cards.mjs validation-artifacts/input.md --ratio 3:4 --theme quiet --out validation-artifacts/pr2-edge-cards
           echo '## article2media 2.0.1 | pinned 5e752bea' >> "$GITHUB_STEP_SUMMARY"
           echo '| Stage | Exit | Generated files |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---:|---:|' >> "$GITHUB_STEP_SUMMARY"
-          for tag in doctor wechat cards; do
+          for tag in doctor main-control-wechat main-control-cards main-edge-wechat main-edge-cards pr2-edge-wechat pr2-edge-cards; do
             n=$(find "validation-artifacts/$tag" -type f 2>/dev/null | wc -l)
             echo "| $tag | $(cat validation-artifacts/$tag.exitcode) | $n |" >> "$GITHUB_STEP_SUMMARY"
           done
           find validation-artifacts -type f | sort > validation-artifacts/manifest.txt
-          sha256sum validation-artifacts/input.md > validation-artifacts/input.sha256
+          sha256sum validation-artifacts/input.md validation-artifacts/control.md > validation-artifacts/input.sha256
           echo 'Limit: checks only layout CLI, not video quality, Mac VoxCPM2, copyright, or publishing.' >> "$GITHUB_STEP_SUMMARY"
-          [[ $(cat validation-artifacts/wechat.exitcode) == 0 && $(cat validation-artifacts/cards.exitcode) == 0 ]]
+          [[ $(cat validation-artifacts/main-control-wechat.exitcode) == 0 && $(cat validation-artifacts/main-control-cards.exitcode) == 0 && $(cat validation-artifacts/main-edge-wechat.exitcode) != 0 && $(cat validation-artifacts/main-edge-cards.exitcode) != 0 && $(cat validation-artifacts/pr2-edge-wechat.exitcode) == 0 && $(cat validation-artifacts/pr2-edge-cards.exitcode) == 0 ]]
       - name: Upload evidence even if render fails
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: article2media-smoke
+          name: article2media-main-vs-pr2
           path: validation-artifacts/
           retention-days: 30
